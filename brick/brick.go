@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os/exec"
 	"path"
-	"strconv"
 	"strings"
 
 	"github.com/gluster/glusterd2/gdctx"
+	"github.com/gluster/glusterd2/pmap"
 	"github.com/gluster/glusterd2/utils"
 	"github.com/pborman/uuid"
 
@@ -68,11 +68,11 @@ func (b *Brick) Args() string {
 
 	brickPathWithoutSlashes := strings.Trim(strings.Replace(b.brickinfo.Path, "/", "-", -1), "-")
 	logFile := path.Join(config.GetString("logdir"), "glusterfs", "bricks", fmt.Sprintf("%s.log", brickPathWithoutSlashes))
-	//TODO: For now, getting next available port. Use portmap ?
-	brickPort := strconv.Itoa(GetNextAvailableFreePort())
 	//TODO: Passing volfile directly for now.
 	//Change this once we have volfile fetch support in GD2.
 	volfile := utils.GetBrickVolFilePath(b.volName, b.brickinfo.Hostname, b.brickinfo.Path)
+
+	brickPort := pmap.AssignPort(0, b.brickinfo.Path)
 
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf(" --volfile %s", volfile))
